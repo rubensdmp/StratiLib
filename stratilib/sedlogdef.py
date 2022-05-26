@@ -36,7 +36,7 @@ DICT_SL_GRAINS = {'cl':'clay',
 
 #Según tipos presentes en SEDLOG
 
-DICT_SL_LITHO = {'x1':'Mudstone',
+DICT_SL_LITHO = {'M':'Mudstone',
               'x1':'Claystone',
               'x1':'Shale',
               'x1':'Siltstone',
@@ -52,10 +52,10 @@ DICT_SL_LITHO = {'x1':'Mudstone',
               'x1':'Packestone',
               'x1':'Grainstone',
               'x1':'Halite',
-              'x1':'Gypsum/Anhydrite',
-              'x1':'Dolomite',
+              'Gy':'Gypsum/Anhydrite',
+              'D':'Dolomite',
               
-              'x1':'Breccia',
+              'B':'Breccia',
               'x1':'Matrix-supported conglomerate',
               'x1':'Clast-supported conglomerate',
               'x1':'Lava',

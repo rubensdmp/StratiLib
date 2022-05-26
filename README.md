@@ -30,4 +30,4 @@ In the tutorial notebooks you can find more parameters.
 
 
 ### Stratigraphic columns
-![Example 1](images/Perfíl.png)
+![Example 1](Images/Perfíl.png)

@@ -1,6 +1,6 @@
 # StratiLib
 
-Working in progres...
+Working in progress...
 
 Open-source, stratigraphic columns modeling in Python.
 [![license: LGPL v3](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://github.com/rubensdmp/StratiLib/blob/main/LICENCE)

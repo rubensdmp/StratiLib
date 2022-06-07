@@ -16,7 +16,7 @@ LONG_DESC_TYPE = "text/markdown"
 
 
 #Paquetes necesarios para que funcione la libreía. Se instalarán a la vez si no lo tuvieras ya instalado
-INSTALL_REQUIRES = [ 'numpy', 'pandas', 'matplotlib']
+INSTALL_REQUIRES = ['numpy', 'pandas', 'matplotlib']
 
 setup(
     name=PACKAGE_NAME,

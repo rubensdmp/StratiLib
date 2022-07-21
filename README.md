@@ -41,7 +41,7 @@ In the next lines you can see the most important functions of StratiLib
 #Import library
 import stratilib as sl
 
-#Read data
+#Read data see the tutorials for templates
 df_lithology = sl.read_litho('my_data.xlsx', **kwargs)
 
 #Plot data
@@ -65,7 +65,6 @@ sl.plot_structs(**kwargs)
 
 In the tutorial notebooks you can find more parameters.
 
-:notebook:
 
 ## 📚 Documentation
 

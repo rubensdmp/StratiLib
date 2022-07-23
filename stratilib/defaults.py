@@ -1,10 +1,11 @@
 # coding=utf-8
 
 import numpy as np
+import pandas as pd
 import matplotlib.hatch
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Polygon
-import site
+import os
 import warnings
 
 
@@ -212,7 +213,7 @@ LITHOLOGIES = {11500: {'lith':'Sandstone very fine', 'sedlog': False,'sp':'Areni
 
 #img_amo = plt.imread('images/Amo.png')
 
-path = site.getsitepackages()[1]
+path = os.path.dirname(pd.__file__)[:-6]
 
 #/stratilib/images of structures
 img_r =  plt.imread(path + '/stratilib/images/ripple.png')

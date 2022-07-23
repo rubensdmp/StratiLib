@@ -208,23 +208,23 @@ def plot_litho(dfLito, **kwargs):
             suptit = value
         if (key == 'struct_out'):
             struct_out = value
-            sub_plots += 1
         if (key == 'fossil_out'):
-            fossil_out = value
-            sub_plots += 1
+            fossil_out = value            
         if (key == 'save_fig'):
             save = True 
             name = value
 
+    if fossil_out or struct_out:
+        sub_plots += 1
+    
+            
+            
     fig = plt.subplots(figsize=(width*sub_plots,length*4))
     
     if show_des:
         axD = sub_plot_des(dfLito, sub_plots, top, base)
-    if struct_out:
+    if struct_out or fossil_out:
         axS = sub_plot_struct(dfLito, sub_plots, 1, top, base, **kwargs)
-    if fossil_out:
-        axF = sub_plot_fossils(dfLito, sub_plots, pos, top, base, **kwargs)
-
     
     if suptit != '':
         plt.suptitle(suptit, y=1, ha='center', fontsize=22)
@@ -237,6 +237,7 @@ def plot_litho(dfLito, **kwargs):
         plt.savefig(name + '.png')    
     
     plt.show()
+
 
 
     
@@ -258,6 +259,8 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
     width, length = 4, 4
     show_fm, tick_unit = False, False
     show_fossils,show_structs = False, False 
+    struct_out, fossil_out = False, False
+        
     show_era = False
     show_des = False
     only_first_lith = False
@@ -309,51 +312,56 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
     
     #reviso los Kwargs
     for key, value in kwargs.items():
-        if (key == 'show_fm') & (value == 'True'):
-            show_fm = True
+        if (key == 'show_fm') and (value == True):
+            show_fm = value
             Fms = dfLito[['FM', 'TOP', 'CONTACT']].groupby(['FM']).first()
             Fms['BASE']= dfLito[['FM', 'BASE']].groupby(['FM']).last()
             Fms['CONTACT']= dfLito[['FM', 'CONTACT']].groupby(['FM']).last()
             Fms.reset_index(inplace=True)            
             x_plot +=0.5
             title = 'Fm           Litología\n'
-        if (key == 'show_gr') & (value == 'False'):
-            show_gr = False
+        if (key == 'show_gr') and (value == False):
+            show_gr = value
             dfLito['GRAINB'] = 1
-        if (key == 'color_fill') & (value == 'False'):
-            color_fill = False
-        if (key == 'show_fossils') & (value == 'True'):
-            show_fossils = True
-        if (key == 'show_structs') & (value == 'True'):
-            show_structs = True
+        if (key == 'color_fill'):
+            color_fill = value
+        if (key == 'show_fossils'):
+            show_fossils = value
+        if (key == 'show_structs'):
+            show_structs = value
         if (key == 'fm_rot'):
             fm_rot = value
         if (key == 'fm_size'):
             fm_size = value
-        if (key == 'suavizar') & (value == 'True'):
-            suav = True
+        if (key == 'suavizar'):
+            suav = value
         if (key == 'width'):
             width = value
         if (key == 'length'):
             length = value
         if (key == 'ticks'):
             step = value
-        if (key == 'tick_unit') & (value == 'True'):
-            tick_unit = True
+        if (key == 'tick_unit'):
+            tick_unit = value
         if (key == 'title'):
             title = value
         if (key == 'none_length'):
             none_length = value
         if (key == 'only_first_lith'):
             only_first_lith = value
+        if (key == 'struct_out'):
+            struct_out = value
+        if (key == 'fossil_out'):
+            fossil_out = value
+        
             
                
     dfLito['GRAINB'][dfLito['LITH1']==99999] = none_length
     dfLito['GRAINT'][dfLito['LITH1']==99999] = none_length
         
     escala = (basep - topep)/(length*60)
-        
-       
+
+    
     # Lithology track
     #xL.plot(dfLito["LITHOLOGY"], dfLito['BASE'], color = "black", linewidth = 0.5)
     axL.set_title(title, fontsize = 20, linespacing = 2.0, ha = 'center', x=0.38)
@@ -379,42 +387,54 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
             
         axL.plot(x_plot+dfLito['GRAINB'],dfLito['BASE'], color="black", zorder =10, lw=0.8)
         
-        axL.set_xticks([0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0])
+        ticks_list = [0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.0]
+        arr_ticks = np.array(ticks_list)
+        arr_ticks = arr_ticks +x_plot
+        axL.set_xticks(arr_ticks)
         bbox_props = dict(boxstyle="Round, pad=0.8", fc="w", ec="0.5", alpha=0.0)
-        axL.text(0.53, topep-((basep - topep)*0.015), '    s      f      c     g     b', 
+        axL.text(x_plot+0.53, topep-((basep - topep)*0.015), '    s      f      c     g     b', 
             ha="left", va="bottom",linespacing = 1.0, size=10, multialignment='left',
             bbox=bbox_props, zorder=1,rotation=0)
-        axL.text(0.53, topep-((basep - topep)*0.003), 'cl    vf     m    vc    p  ', 
+        axL.text(x_plot+0.53, topep-((basep - topep)*0.003), 'cl    vf     m    vc    p  ', 
             ha="left", va="bottom",linespacing = 1.0, size=10, multialignment='left',
             bbox=bbox_props, zorder=1,rotation=0)
         
     
     base_aux = 0
-    #PLOTEO ESTRUCTURAS
-    if show_structs:
+    #PLOTEO ESTRUCTURAS y FÓSILES
+    if show_fossils and show_structs and not struct_out and not fossil_out:
+        struct_list = struct_list + fossil_list
+    elif show_fossils and not fossil_out:
+        struct_list = fossil_list
+    elif show_structs and not struct_out:
+        struct_list = struct_list
+    else:
+        struct_list=[]
+    
+    struct_list = sorted(struct_list, key=itemgetter(2))
+    
+    if (show_structs or show_fossils) and (not struct_out or not fossil_out):
         for i in range(len(struct_list)):
-            pos = struct_list[i][0] + (struct_list[i][2] - struct_list[i][0])/2
+            if (struct_list[i][0] < topep) or (struct_list[i][2] > basep):
+                x_tope = struct_list[i][0] if struct_list[i][0] > topep else topep
+                x_base = struct_list[i][2] if struct_list[i][2] < basep else basep
+            
+            pos = x_tope + (x_base - x_tope)/2
             if struct_list[i][0] != base_aux:
                 x0 = 0.15
             else:
-                x0 =+ 0.40
-            axL.imshow(struct_list[i][1], extent=[x_plot+x0,x_plot+x0+(0.50*(3/width)),pos+(7*escala),pos-(7*escala)], aspect='auto', zorder=20)
+                x0 += 0.25
+            axL.imshow(struct_list[i][1], extent=[x_plot+x0,x_plot+x0+(0.30*(3/width)),pos+(6*escala),pos-(6*escala)], aspect='auto', zorder=20)
             #axL.imshow(sl.img_amo, extent=[x_plot+0.2,x_plot+0.2+(0.25*(4/width)),pos2,(pos2-(pos2/10)*escala/15)], aspect='auto', zorder=20)
             base_aux = struct_list[i][0]
     
-    #PLOTEO FÓSILES
-    if show_fossils:
-        for i in range(len(fossil_list)):
-            pos = fossil_list[i][0] + (fossil_list[i][2] - fossil_list[i][0])/2
-            axL.imshow(fossil_list[i][1], extent=[x_plot+0.15,x_plot+0.15+(0.50*(4/width)),pos+(7*escala),pos-(7*escala)], aspect='auto', zorder=20)
-            #axL.imshow(sl.img_amo, extent=[x_plot+0.2,x_plot+0.2+(0.25*(4/width)),pos2,(pos2-(pos2/10)*escala/15)], aspect='auto', zorder=20)
 
     
     #PLOTEAMOS LAS FORMACIONES
     if show_fm:
         bbox_props = dict(boxstyle="Round, pad=0.8", fc="w", ec="0.5", alpha=0.0)
         for i in range(len(Fms)):
-            if (Fms.iloc[i,3] > topep) & (Fms.iloc[i,1] < basep):
+            if (Fms.iloc[i,3] > topep) or (Fms.iloc[i,1] < basep):
                 x_tope = Fms.iloc[i,1] if Fms.iloc[i,1] > topep else topep
                 x_base = Fms.iloc[i,3] if Fms.iloc[i,3] < basep else basep                
                 axL.text(0.25, (x_tope+x_base)/2, Fms.iloc[i,0], 
@@ -496,13 +516,34 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
 
 #---------------------------------------------- SUB PLOT STRUCT -----------------------------------------------
 
+from operator import itemgetter, attrgetter
+
 def sub_plot_struct(df, sub_plots, pos, tope, basee, **kwargs):
     axS = plt.subplot2grid((1,sub_plots), (0,pos), rowspan=1, colspan = 1)        
     width, length = 4, 4
     step= ((basee-tope)/8)
+    show_fossils,show_structs = False, False 
+    struct_out, fossil_out = False, False
+    
+    
+    #reviso los Kwargs
+    for key, value in kwargs.items():
+        if (key == 'length'):
+            length = value
+        if (key == 'show_fossils'):
+            show_fossils = value
+        if (key == 'show_structs'):
+            show_structs = value
+        if (key == 'struct_out'):
+            struct_out = value
+        if (key == 'fossil_out'):
+            fossil_out = value
+        
+    escala = (basee - tope)/(length*60)
+    
     
     df_str = df[['TOP', 'BASE', 'STRUCTURES', 'FOSSILS']]
-    
+            
     #list of Structures
     struct_list = []
     for idx in df_str[df_str['STRUCTURES'].isnull()==False].index.tolist():
@@ -519,30 +560,35 @@ def sub_plot_struct(df, sub_plots, pos, tope, basee, **kwargs):
                             df['CONTACT'].tolist(),
                             df['GRAINB'].tolist()))
     
-    
-    #reviso los Kwargs
-    for key, value in kwargs.items():
-        if (key == 'length'):
-            length = value
+    if show_fossils and show_structs and struct_out and fossil_out:
+        struct_list = struct_list + fossil_list
+        stc_tit = 'Structures/Fossils'
+    elif show_fossils and fossil_out:
+        struct_list = fossil_list
+        stc_tit = 'Fossils'
+    else:
+        struct_list = struct_list
+        stc_tit = 'Structures'
         
-    escala = (basee - tope)/(length*60)
-    
-    
+    struct_list = sorted(struct_list, key=itemgetter(2))
         
-    
     axS.set_xlim(0, 1)
     axS.hlines(y=tope, xmin=0, xmax=1, colors='black', ls='-', lw=1, label='vline_single - full height',alpha = 1, zorder = 5)
-    axS.set_title('Structures\n', fontsize = 20, linespacing = -0.01)
+    axS.set_title(stc_tit, fontsize = 20, linespacing = -0.01)
 
             
     #PLOTEO ESTRUCTURAS
     base_aux = 0
     for i in range(len(struct_list)):
-        pos = struct_list[i][0] + (struct_list[i][2] - struct_list[i][0])/2
+        if (struct_list[i][0] < tope) or (struct_list[i][2] > basee):
+            x_tope = struct_list[i][0] if struct_list[i][0] > tope else tope
+            x_base = struct_list[i][2] if struct_list[i][2] < basee else basee
+            
+        pos = x_tope + (x_base - x_tope)/2
         if struct_list[i][0] != base_aux:
             x0 = 0.05
         else:
-            x0 =+ 0.30
+            x0 += 0.25
         axS.imshow(struct_list[i][1], extent=[x0,x0+(0.50*(2/width)),pos+(5*escala),pos-(5*escala)], aspect='auto', zorder=20)
         base_aux = struct_list[i][0]
         
@@ -574,7 +620,6 @@ def sub_plot_struct(df, sub_plots, pos, tope, basee, **kwargs):
     axS.grid(False)
 
     return axS
-
 
 
 
@@ -639,7 +684,6 @@ def sub_plot_des(df, sub_plots, tope, basee):
     axD.grid(False)
 
     return axD
-
 
 
 

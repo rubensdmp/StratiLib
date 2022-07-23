@@ -5,7 +5,7 @@
 >Open-source stratigraphic modeling in Python.
 
 [![license: LGPL v3](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://github.com/rubensdmp/StratiLib/blob/main/LICENCE)
-Designed by [Rubens Merlino](https://www.linkedin.com/in/rubens-merlino-uy/).
+Developed by [Rubens Merlino](https://www.linkedin.com/in/rubens-merlino-uy/).
 
 ## 📝 Introduction
 
@@ -90,7 +90,7 @@ Please see contact [me](https://www.linkedin.com/in/rubens-merlino-uy/) for more
 
 ### Example of lithologies and its patterns that can be used
 ``` python
-#Plot lithologies
+#Plot lithologies that can be used
 sl.show_litho()
 ```
 ![Example 1](https://github.com/rubensdmp/StratiLib/blob/main/images/readme/lithologies.png?raw=true)
@@ -99,7 +99,7 @@ sl.show_litho()
 
 ### Example of Structures and Fossils that can be used
 ``` python
-#Plot structures and fossils
+#Plot structures and fossils that can be used
 sl.plot_structs()
 ```
 ![Example 2](https://github.com/rubensdmp/StratiLib/blob/main/images/readme/StructuresANDFossils.png?raw=true)

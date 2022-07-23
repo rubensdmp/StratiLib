@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.0.5' 
+VERSION = '0.0.8' 
 PACKAGE_NAME = 'stratilib'
 AUTHOR = 'Rubens Merlino' 
 AUTHOR_EMAIL = 'rubensdmp@gmail.com' 

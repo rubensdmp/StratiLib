@@ -24,7 +24,7 @@ def show_litho(**kwargs):
     '''
     lang = 'es'
     keys, sedlog, save = False, False, False
-    list_keys = LITHOLOGIES.keys()
+    list_keys = list(LITHOLOGIES.keys())
     keys_tit = ''
     rows = 7
     cols = 5
@@ -36,17 +36,15 @@ def show_litho(**kwargs):
     for key, value in kwargs.items():
         if (key == 'lang'):    
             lang = value
+        if (key == 'sedlog'):
+            sedlog = value
+            rows = 5
+            add_tit = ' SedLog '
         if (key == 'df'):    
             df = value
-            list_keys = df['LITH1'].unique().tolist()
+            list_keys = df['LITH1'].unique().tolist() + df['LITH2'][df['LITH2'].isnull()==False].unique().tolist() + df['LITH3'][df['LITH3'].isnull()==False].unique().tolist()
             rows = len(list_keys)
             cols = 1
-        if (key == 'sedlog'):
-            if (value =='True'):    
-                sedlog = True
-                rows = 5
-                add_tit = ' SedLog '
-                list_keys = [key for key in LITHOLOGIES.keys() if LITHOLOGIES[key]['sedlog'] == sedlog]
         if (key == 'cols'):
             cols = value
             rows = int(np.ceil(len(list_keys)/cols))
@@ -61,6 +59,11 @@ def show_litho(**kwargs):
             save = True 
             name = value
             
+    if sedlog:
+        list_keys = [key for key in list_keys if LITHOLOGIES[key]['sedlog'] == True]
+        cols = 5
+        rows = int(np.ceil(len(list_keys)/cols))
+    
     y = [0, 1]
     x = [1, 1]
 
@@ -85,7 +88,7 @@ def show_litho(**kwargs):
         else:
             ax.set_title(str(LITHOLOGIES[key]['lith'])+keys_tit)
             fig.suptitle(add_tit + tit, y=1, ha='center', fontsize=22)
-            
+        
     plt.tight_layout()
 
     if save:

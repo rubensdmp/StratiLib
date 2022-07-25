@@ -10,12 +10,11 @@ from .functions import *
 #---------------------------------------------- READ SEDLOG -----------------------------------------------
 
 
-def read_sedlog(name, **kwargs):
-'''
+def read_sedlog(name):
+    '''
     Args:
         path and name of file
-    kwargs:
-'''
+    '''
     def mapstructs(s):
         structs = ''
         for st in s.split(','):

@@ -11,6 +11,11 @@ from .functions import *
 
 
 def read_sedlog(name, **kwargs):
+'''
+    Args:
+        path and name of file
+    kwargs:
+'''
     def mapstructs(s):
         structs = ''
         for st in s.split(','):

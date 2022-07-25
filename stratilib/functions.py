@@ -18,7 +18,7 @@ def show_litho(**kwargs):
         df = pandas dataframe from read_litho or read_sedlog
         rows = number of rows to plot lithologys
         cols = number of cols to plot lithologys
-        tit = title
+        tit = title, default 'Litologies'
         keys = True: show lithology keys
         save_fig = name of file to be saved
     '''
@@ -101,7 +101,9 @@ def show_litho(**kwargs):
 
 def read_litho(name, **kwargs):
     '''
-    **Kwargs:
+    Args:
+        path and name of file
+    Kwargs:
         sand_colors = show diferent colors for diferent grain size (see show_litho()). Default False
         
         RETURN: dataframe        
@@ -183,6 +185,34 @@ def read_litho(name, **kwargs):
 #---------------------------------------------- PLOT LITHO -----------------------------------------------
 
 def plot_litho(dfLito, **kwargs):
+    '''
+    Args:
+        Pandas dataframe from read_litho() or read_sedlog()
+        number of subplots
+        subplot position
+        Top depth to plot, default top of depth
+        bottom depth to plot, default bottom of depth
+    kwargs:
+        width: width of plot
+        length: length of plot
+        title: title of plot
+        suptit = title of the figure
+        color_fill = True: fill lithologys with color, default = True
+        show_fossils = True: Show fossils, default = False
+        show_structs = True: show sedimentary structures, default = False
+        struct_out = True: show sedimentary structures in new plot, default = False
+        fossil_out = True: show fossils in new plot, default = False
+        show_fm = True: show formations, default = False
+        fm_rot: rotation of the name of formations 
+        fm_size: font size of the name of formations
+        show_gr = True: show grain size, default = True
+        ticks: step of ticks
+        tick_unit: ticks unit
+        none_length = {0.0 - 1.0}: width of none lithology in the plot, default 1.0
+        only_first_lith = True: show only first lithology if you have more than once in file
+        show_des = True: show descriptions in new plot
+        save_fig = name of file to be saved
+    '''
     width, length = 4, 4
     top = dfLito['TOP'].min()
     base = dfLito['BASE'].max()
@@ -245,17 +275,37 @@ def plot_litho(dfLito, **kwargs):
 #---------------------------------------------- SUB PLOT LITHO -----------------------------------------------
 
 #Función para el ploteo de perfíl litológico
-'''
-Tenemos que sumar:
-    -suavizar curva
-    -
-'''
+
 
 #Parámetros:
     #tope, base,
     
 def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
-    #Variables **kwargs por defecto:
+    '''
+    Args:
+        Pandas dataframe from read_litho() or read_sedlog()
+        number of subplots
+        subplot position
+        Top depth to plot, default top of depth
+        bottom depth to plot, default bottom of depth
+    kwargs:
+        width: width of plot
+        length: length of plot
+        title: title of plot
+        color_fill = True: fill lithologys with color, default = True
+        show_fossils = True: Show fossils, default = False
+        show_structs = True: show sedimentary structures, default = False
+        struct_out = True: show sedimentary structures in new plot, default = False
+        fossil_out = True: show fossils in new plot, default = False
+        show_fm = True: show formations, default = False
+        fm_rot: rotation of the name of formations 
+        fm_size: font size of the name of formations
+        show_gr = True: show grain size, default = True
+        ticks: step of ticks
+        tick_unit: ticks unit
+        none_length = {0.0 - 1.0}: width of none lithology in the plot, default 1.0
+        only_first_lith = True: show only first lithology if you have more than once in file
+    '''
     width, length = 4, 4
     show_fm, tick_unit = False, False
     show_fossils,show_structs = False, False 
@@ -519,6 +569,22 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
 from operator import itemgetter, attrgetter
 
 def sub_plot_struct(df, sub_plots, pos, tope, basee, **kwargs):
+    '''
+    Args:
+        Pandas dataframe from read_litho() or read_sedlog()
+        number of subplots
+        subplot position
+        Top depth to plot, default top of depth
+        bottom depth to plot, default bottom of depth
+    kwargs:
+        width: width of plot
+        length: length of plot
+        show_fossils = True: Show fossils, default = False
+        show_structs = True: show sedimentary structures, default = False
+        struct_out = True: show sedimentary structures in new plot, default = False
+        fossil_out = True: show fossils in new plot, default = False
+    '''    
+    
     axS = plt.subplot2grid((1,sub_plots), (0,pos), rowspan=1, colspan = 1)        
     width, length = 4, 4
     step= ((basee-tope)/8)
@@ -580,9 +646,8 @@ def sub_plot_struct(df, sub_plots, pos, tope, basee, **kwargs):
     #PLOTEO ESTRUCTURAS
     base_aux = 0
     for i in range(len(struct_list)):
-        if (struct_list[i][0] < tope) or (struct_list[i][2] > basee):
-            x_tope = struct_list[i][0] if struct_list[i][0] > tope else tope
-            x_base = struct_list[i][2] if struct_list[i][2] < basee else basee
+        x_tope = struct_list[i][0] if struct_list[i][0] > tope else tope
+        x_base = struct_list[i][2] if struct_list[i][2] < basee else basee
             
         pos = x_tope + (x_base - x_tope)/2
         if struct_list[i][0] != base_aux:
@@ -629,6 +694,14 @@ def sub_plot_struct(df, sub_plots, pos, tope, basee, **kwargs):
 
 
 def sub_plot_des(df, sub_plots, tope, basee):
+    '''
+    Args:
+        Pandas dataframe from read_litho() or read_sedlog()
+        number of subplots
+        Top depth to plot, default top of depth
+        bottom depth to plot, default bottom of depth
+    '''    
+    
     axD = plt.subplot2grid((1,sub_plots), (0,sub_plots-1), rowspan=1, colspan = 1)        
     
     axD.set_xlim(0, 1)
@@ -673,8 +746,6 @@ def sub_plot_des(df, sub_plots, tope, basee):
             axD.hlines(y=contact_list[i][0], xmin=0, xmax=1, colors='black', ls='-', lw=1, zorder = 5, alpha = 0.5)            
     
     
-    
-    
             
     axD.set_ylim(basee, tope)
     axD.grid(which='major', color='lightgrey', linestyle='-')
@@ -690,7 +761,7 @@ def sub_plot_des(df, sub_plots, tope, basee):
 
 
 
-#---------------------------------------------- PLOT STRCUTS -----------------------------------------------
+#---------------------------------------------- SHOW STRCUTS -----------------------------------------------
 
 #Dictionary for Sedimentary structures in SYMBOLS IN BED' y 'SYMBOLS/STRUCTURES'
 DICT_PLT_STRUCTURES = {
@@ -763,10 +834,11 @@ burrows'''}
 
 
 
-def plot_structs(**kwargs):
+def show_structs(**kwargs):
     '''
     kwargs:
         df = pandas dataframe from read_litho or read_sedlog
+        plot {'structures', 'fossils', 'both'} default 'both'
         keys = True: show lithology keys
         save_fig = name of file to be saved
     '''

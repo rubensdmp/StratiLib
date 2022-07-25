@@ -60,7 +60,7 @@ sl.to_sedlog_csv(df_data, **kwargs)
 sl.show_litho(**kwargs)
 
 #Plot structures and fossils
-sl.plot_structs(**kwargs)
+sl.show_structs(**kwargs)
 ```
 
 In the tutorial notebooks you can find more parameters.
@@ -100,6 +100,6 @@ sl.show_litho()
 ### Example of Structures and Fossils that can be used
 ``` python
 #Plot structures and fossils that can be used
-sl.plot_structs()
+sl.show_structs()
 ```
 ![Example 2](https://github.com/rubensdmp/StratiLib/blob/main/images/readme/StructuresANDFossils.png?raw=true)

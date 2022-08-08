@@ -87,6 +87,10 @@ Please see contact [me](https://www.linkedin.com/in/rubens-merlino-uy/) for more
 ## 🖼️ Gallery of examples
 
 
+### Example of some stratigraphic columns
+![Example 1](https://github.com/rubensdmp/StratiLib/blob/main/images/readme/columns.png?raw=true)
+
+
 
 ### Example of lithologies and its patterns that can be used
 ``` python

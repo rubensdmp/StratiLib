@@ -92,13 +92,16 @@ def read_sedlog(name):
 
 
 
-
 #---------------------------------------------- TO SEDLOG CSV -----------------------------------------------
 
+def to_sedlog_csv(df,name):
+    '''
+    Args:
+        df: Pandas dataframe from read_litho() or read_sedlog()
+        name: name of output csv file.
+    '''
 
-
-def to_sedlog_csv(df):
-
+    
     def structs_to_csv(s1, s2):
         structs = ''        
         if not pd.isna(s1):
@@ -109,42 +112,53 @@ def to_sedlog_csv(df):
                 structs += ',' + DICT_DF_SL_FOSSILS.get(st,'')
         return structs[1:]
 
-    
-    
-    sedLogCSV = pd.DataFrame()
-    vacio ='""'
-    
-    for i in range(len(df)-1,-1,-1):
-        sedLogCSV = sedLogCSV.append(
-            {'THICKNESS (CM)': df['THICKNESS'][i], 
-             'BASE BOUNDARY': DICT_DF_SL_CONTACTS.get(df['CONTACT'][i]) if df['CONTACT'][i] in DICT_DF_SL_CONTACTS else '<none>', 
-             'LITHOLOGY': DICT_DF_SL_LITHO.get(DICT_LITHO_RV.get(df['LITH1'][i])), 
-             'LITHOLOGY %': df['LITH1%'][i]*100,
-             'LITHOLOGY2': DICT_DF_SL_LITHO.get(DICT_LITHO_RV.get(df['LITH2'][i])) if not pd.isna(df['LITH2'][i]) else '<none>',
-             'LITHOLOGY2 %': df['LITH2%'][i]*100, 
-             'LITHOLOGY3': DICT_DF_SL_LITHO.get(DICT_LITHO_RV.get(df['LITH3'][i])) if not pd.isna(df['LITH3'][i]) else '<none>', 
-             'LITHOLOGY3 %': df['LITH3%'][i]*100,
-             'GRAIN SIZE BASE': DICT_DF_SL_GRAINS.get(DICT_GRAIN_RV.get(df['GRAINB'][i])) if not pd.isna(df['GRAINB'][i]) else '<none>',
-             'PHI VALUES BASE': DICT_DF_SL_PHI.get(DICT_GRAIN_RV.get(df['GRAINB'][i])) if not pd.isna(df['GRAINB'][i]) else 0.0, 
-             'GRAIN SIZE TOP': DICT_DF_SL_GRAINS.get(DICT_GRAIN_RV.get(df['GRAINT'][i])) if not pd.isna(df['GRAINT'][i]) else '<none>',
-             'PHI VALUES TOP': DICT_DF_SL_PHI.get(DICT_GRAIN_RV.get(df['GRAINT'][i])) if not pd.isna(df['GRAINB'][i]) else 0.0, 
-             'SYMBOLS IN BED': '<none>', 
-             'SYMBOLS/STRUCTURES': str(structs_to_csv(df['STRUCTURES'][i],df['FOSSILS'][i])),
-             'NOTES COLUMN': df['DESC'][i],             
-             'BIOTURBATION TYPE':  '<none>', 
-             'INTENSITY': '0',
-             'PALAEOCURRENT VALUES': vacio, 
-             'FACIES': '0', 
-             'OTHER1 TEXT': vacio, 
-             'OTHER1 SYMBOL': vacio,
-             'OTHER2 TEXT': vacio, 
-             'OTHER2 SYMBOL': vacio,                      
-             'OTHER3 TEXT': vacio, 
-             'OTHER3 SYMBOL': vacio}
+    list_keys = df['LITH1'].unique().tolist() + df['LITH2'][df['LITH2'].isnull()==False].unique().tolist() + df['LITH3'][df['LITH3'].isnull()==False].unique().tolist()
+    no_sedlog_lith = []
+    for key in list_keys:
+        if LITHOLOGIES[key]['sedlog'] == False:
+            no_sedlog_lith.append(LITHOLOGIES[key]['lith'])
+            NO_SEDLOG = True
 
-            ,ignore_index =True)
+    
+    if NO_SEDLOG:
+        print('The lithologies below are not in SedLog 3.1.')
+        print(no_sedlog_lith)
+        print('Please modify lithologies in input excel file to generate sedlog csv file.')
+    else:
+        sedLogCSV = pd.DataFrame()
+        vacio ='""'
 
-    #sedLogCSV.to_csv("sedLogCSV.csv", index =False, quoting=csv.QUOTE_NONE)
-    sedLogCSV.to_csv("sedLogCSV.csv", index =False)
-    return sedLogCSV
+        for i in range(len(df)-1,-1,-1):
+            sedLogCSV = sedLogCSV.append(
+                {'THICKNESS (CM)': df['THICKNESS'][i], 
+                 'BASE BOUNDARY': DICT_DF_SL_CONTACTS.get(df['CONTACT'][i]) if df['CONTACT'][i] in DICT_DF_SL_CONTACTS else '<none>', 
+                 'LITHOLOGY': DICT_DF_SL_LITHO.get(DICT_LITHO_RV.get(df['LITH1'][i])), 
+                 'LITHOLOGY %': df['LITH1%'][i]*100,
+                 'LITHOLOGY2': DICT_DF_SL_LITHO.get(DICT_LITHO_RV.get(df['LITH2'][i])) if not pd.isna(df['LITH2'][i]) else '<none>',
+                 'LITHOLOGY2 %': df['LITH2%'][i]*100, 
+                 'LITHOLOGY3': DICT_DF_SL_LITHO.get(DICT_LITHO_RV.get(df['LITH3'][i])) if not pd.isna(df['LITH3'][i]) else '<none>', 
+                 'LITHOLOGY3 %': df['LITH3%'][i]*100,
+                 'GRAIN SIZE BASE': DICT_DF_SL_GRAINS.get(DICT_GRAIN_RV.get(df['GRAINB'][i])) if not pd.isna(df['GRAINB'][i]) else '<none>',
+                 'PHI VALUES BASE': DICT_DF_SL_PHI.get(DICT_GRAIN_RV.get(df['GRAINB'][i])) if not pd.isna(df['GRAINB'][i]) else 0.0, 
+                 'GRAIN SIZE TOP': DICT_DF_SL_GRAINS.get(DICT_GRAIN_RV.get(df['GRAINT'][i])) if not pd.isna(df['GRAINT'][i]) else '<none>',
+                 'PHI VALUES TOP': DICT_DF_SL_PHI.get(DICT_GRAIN_RV.get(df['GRAINT'][i])) if not pd.isna(df['GRAINB'][i]) else 0.0, 
+                 'SYMBOLS IN BED': '<none>', 
+                 'SYMBOLS/STRUCTURES': str(structs_to_csv(df['STRUCTURES'][i],df['FOSSILS'][i])),
+                 'NOTES COLUMN': df['DESC'][i],             
+                 'BIOTURBATION TYPE':  '<none>', 
+                 'INTENSITY': '0',
+                 'PALAEOCURRENT VALUES': vacio, 
+                 'FACIES': '0', 
+                 'OTHER1 TEXT': vacio, 
+                 'OTHER1 SYMBOL': vacio,
+                 'OTHER2 TEXT': vacio, 
+                 'OTHER2 SYMBOL': vacio,                      
+                 'OTHER3 TEXT': vacio, 
+                 'OTHER3 SYMBOL': vacio}
+
+                ,ignore_index =True)
+
+        #sedLogCSV.to_csv("sedLogCSV.csv", index =False, quoting=csv.QUOTE_NONE)
+        sedLogCSV.to_csv(name + '.csv', index =False)
+        return sedLogCSV
 

@@ -7,13 +7,14 @@ from .sedlogdef import *
 from .sedlogfunc import *
 
 
+
 #---------------------------------------------- SHOW LITHO -----------------------------------------------
 
 #Función para plotear las litologías como leyenda
 def show_litho(**kwargs):
     '''
     kwargs:
-        sedlog = True: show only SedLog 3.1 lithologys
+        sedlog = True: show only SedLog 3.1 lithologies
         lang = {'sp','es'} : language sp:spanish, es:english
         df = pandas dataframe from read_litho or read_sedlog
         rows = number of rows to plot lithologys
@@ -42,7 +43,8 @@ def show_litho(**kwargs):
             add_tit = ' SedLog '
         if (key == 'df'):    
             df = value
-            list_keys = df['LITH1'].unique().tolist() + df['LITH2'][df['LITH2'].isnull()==False].unique().tolist() + df['LITH3'][df['LITH3'].isnull()==False].unique().tolist()
+            list_keys = set(df['LITH1'].unique().tolist() + df['LITH2'][df['LITH2'].isnull()==False].unique().tolist() + df['LITH3'][df['LITH3'].isnull()==False].unique().tolist())
+            
             rows = len(list_keys)
             cols = 1
         if (key == 'cols'):
@@ -61,7 +63,6 @@ def show_litho(**kwargs):
             
     if sedlog:
         list_keys = [key for key in list_keys if LITHOLOGIES[key]['sedlog'] == True]
-        cols = 5
         rows = int(np.ceil(len(list_keys)/cols))
     
     y = [0, 1]
@@ -96,8 +97,48 @@ def show_litho(**kwargs):
     
     plt.show()
 
+    
 
 
+#---------------------------------------------- VALIDATIONS -----------------------------------------------
+#CONTROL DE ESTRUCTURAS Y FÓSILES VÁLIDOS
+
+def valid_struct(df):
+    struct_ok = True
+    struct_list = []
+    for idx in df[df['STRUCTURES'].isnull()==False].index.tolist():
+        for s in df['STRUCTURES'][idx].split(','):
+            if s.strip() not in DICT_STRUCT:
+                struct_list.append(s.strip())
+                struct_ok = False                
+        if not struct_ok:
+            print('-------- ERROR: --------')
+            print('SOME STRUCTURES ARE NOT RECOGNIZABLE, SEE show_structs(keys = True) FOR MORE INFORMATION')
+            print('STRUCTURES UNRECOGNIZABLES: ',struct_list)
+            print('Please modify structures in input excel file')
+    
+    return struct_ok
+
+
+                
+                
+def valid_fossil(df):
+    fossil_ok = True                
+    fossil_list = []
+    for idx in df[df['FOSSILS'].isnull()==False].index.tolist():
+        for s in df['FOSSILS'][idx].split(','):
+            if s.strip() not in DICT_FOSSILS:
+                fossil_list.append(s.strip())
+                fossil_ok = False
+        if not fossil_ok:
+            print('-------- ERROR: --------')
+            print('SOME FOSSILS ARE NOT RECOGNIZABLE, SEE show_structs(keys = True) FOR MORE INFORMATION')
+            print('FOSSILS UNRECOGNIZABLES: ',fossil_list)
+            print('Please modify fossils in input excel file')
+    
+    return fossil_ok
+        
+    
 
 #---------------------------------------------- READ LITHO -----------------------------------------------
 
@@ -179,8 +220,11 @@ def read_litho(name, **kwargs):
                 dfLito['LITH1'] = dfLito['LITHOLOGY'].map(DICT_LITHO)
             
     dfLito['DESC'].fillna('', inplace=True)
-               
-    return dfLito
+
+    if valid_struct(dfLito) and valid_fossil(dfLito):
+        return dfLito
+    else:
+        print('THE FILE CAN NOT BE LOADED')
 
 
 
@@ -191,11 +235,9 @@ def plot_litho(dfLito, **kwargs):
     '''
     Args:
         Pandas dataframe from read_litho() or read_sedlog()
-        number of subplots
-        subplot position
-        Top depth to plot, default top of depth
-        bottom depth to plot, default bottom of depth
     kwargs:
+        top: depth to plot, default top of depth
+        base: bottom depth to plot, default bottom of depth
         width: width of plot
         length: length of plot
         title: title of plot
@@ -250,26 +292,27 @@ def plot_litho(dfLito, **kwargs):
     if fossil_out or struct_out:
         sub_plots += 1
     
-            
-            
     fig = plt.subplots(figsize=(width*sub_plots,length*4))
-    
+
     if show_des:
         axD = sub_plot_des(dfLito, sub_plots, top, base)
     if struct_out or fossil_out:
         axS = sub_plot_struct(dfLito, sub_plots, 1, top, base, **kwargs)
-    
+
     if suptit != '':
         plt.suptitle(suptit, y=1, ha='center', fontsize=22)
-    
+
     axL = sub_plot_litho(dfLito, sub_plots, 0, top, base, **kwargs)
 
     plt.subplots_adjust(wspace=0)
-    
+
     if save:
         plt.savefig(name + '.png')    
-    
+
     plt.show()
+
+
+    
 
 
 
@@ -343,12 +386,12 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
     struct_list = []
     for idx in dfLito[dfLito['STRUCTURES'].isnull()==False].index.tolist():
         for s in dfLito['STRUCTURES'][idx].split(','):
-            struct_list.append((dfLito['TOP'][idx], DICT_STRUCT[s], dfLito['BASE'][idx]))  
+            struct_list.append((dfLito['TOP'][idx], DICT_STRUCT[s.strip()], dfLito['BASE'][idx]))  
     
     fossil_list = []
     for idx in dfLito[dfLito['FOSSILS'].isnull()==False].index.tolist():
         for s in dfLito['FOSSILS'][idx].split(','):
-            fossil_list.append((dfLito['TOP'][idx], DICT_FOSSILS[s], dfLito['BASE'][idx]))  
+            fossil_list.append((dfLito['TOP'][idx], DICT_FOSSILS[s.strip()], dfLito['BASE'][idx]))  
     
     
     #struct_list + list(zip(dfLito['TOP'][dfLito['FOSSILS'].isnull()==False].tolist(),
@@ -466,23 +509,23 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
     
     struct_list = sorted(struct_list, key=itemgetter(2))
     
+    x0 = 0.05
     if (show_structs or show_fossils) and (not struct_out or not fossil_out):
         for i in range(len(struct_list)):
-            if (struct_list[i][0] < topep) or (struct_list[i][2] > basep):
-                x_tope = struct_list[i][0] if struct_list[i][0] > topep else topep
-                x_base = struct_list[i][2] if struct_list[i][2] < basep else basep
+            x_tope = struct_list[i][0] if struct_list[i][0] > topep else topep
+            x_base = struct_list[i][2] if struct_list[i][2] < basep else basep
             
             pos = x_tope + (x_base - x_tope)/2
             if struct_list[i][0] != base_aux:
-                x0 = 0.15
+                x0 = 0.05
             else:
-                x0 += 0.25
-            axL.imshow(struct_list[i][1], extent=[x_plot+x0,x_plot+x0+(0.30*(3/width)),pos+(6*escala),pos-(6*escala)], aspect='auto', zorder=20)
+                x0 += 0.35
+            axL.imshow(struct_list[i][1], extent=[x_plot+x0,x_plot+x0+(0.50*(3/width)),pos+(7*escala),pos-(7*escala)], aspect='auto', zorder=20)
             #axL.imshow(sl.img_amo, extent=[x_plot+0.2,x_plot+0.2+(0.25*(4/width)),pos2,(pos2-(pos2/10)*escala/15)], aspect='auto', zorder=20)
             base_aux = struct_list[i][0]
     
 
-    
+  
     #PLOTEAMOS LAS FORMACIONES
     if show_fm:
         bbox_props = dict(boxstyle="Round, pad=0.8", fc="w", ec="0.5", alpha=0.0)
@@ -494,13 +537,13 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
                     ha="center", va="center", size=fm_size,
                     bbox=bbox_props, zorder=1,rotation=fm_rot)
             #Ploteamos contacto entre formaciones
-            if Fms.iloc[i,2]=='S':
+            if Fms.iloc[i,2]=='S' or Fms.iloc[i,2]=='s':
                 axL.hlines(y=Fms.iloc[i,3], xmin=0, xmax=x_plot, colors='black', ls='-', lw=3, zorder = 5)
-            if Fms.iloc[i,2]=='E':
+            if Fms.iloc[i,2]=='E' or Fms.iloc[i,2]=='e':
                 x = np.arange(0,x_plot,0.001)   # start,stop,step
                 y = np.sin(50*x)
                 axL.plot(x,Fms.iloc[i,3]+escala*y, color="black", zorder =10, lw=3)
-            if Fms.iloc[i,2]=='G':
+            if Fms.iloc[i,2]=='G' or Fms.iloc[i,2]=='g':
                 axL.hlines(y=Fms.iloc[i,3],  xmin=0, xmax=x_plot, colors='black', ls='--', lw=3, zorder = 5)
 
 
@@ -539,15 +582,15 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
     yticks = np.append([topep, basep],np.arange(0,basep,step)) # start,stop,step
     for i in range(len(contact_list)):    
         yticks = np.append(contact_list[i][0],yticks)
-        if contact_list[i][1]=='S':
+        if contact_list[i][1]=='S' or contact_list[i][1]=='s':
             axL.hlines(y=contact_list[i][0], xmin=x_plot, xmax=x_plot+contact_list[i][2], colors='black', ls='-', lw=3, zorder = 5)
 
-        if contact_list[i][1]=='E':
+        if contact_list[i][1]=='E' or contact_list[i][1]=='e':
             x = np.arange(x_plot,x_plot+contact_list[i][2],0.001)   # start,stop,step
             y = np.sin(50*x)
             axL.plot(x,contact_list[i][0]+escala*y, color="black", zorder =10, lw=3)
 
-        if contact_list[i][1]=='G':
+        if contact_list[i][1]=='G' or contact_list[i][1]=='g':
             axL.hlines(y=contact_list[i][0], xmin=x_plot, xmax=x_plot+contact_list[i][2], colors='black', ls='--', lw=3, zorder = 5)
     
     #mostramos ticks de las unidades
@@ -563,6 +606,8 @@ def sub_plot_litho(dfLito, sub_plots, plot_pos, topep, basep, **kwargs):
     axL.grid(False)
 
     return axL
+
+
 
 
 
@@ -617,12 +662,12 @@ def sub_plot_struct(df, sub_plots, pos, tope, basee, **kwargs):
     struct_list = []
     for idx in df_str[df_str['STRUCTURES'].isnull()==False].index.tolist():
         for s in df_str['STRUCTURES'][idx].split(','):
-            struct_list.append((df_str['TOP'][idx], DICT_STRUCT[s], df_str['BASE'][idx]))  
+            struct_list.append((df_str['TOP'][idx], DICT_STRUCT[s.strip()], df_str['BASE'][idx]))  
     
     fossil_list = []
     for idx in df_str[df_str['FOSSILS'].isnull()==False].index.tolist():
         for s in df_str['FOSSILS'][idx].split(','):
-            fossil_list.append((df_str['TOP'][idx], DICT_FOSSILS[s], df_str['BASE'][idx]))  
+            fossil_list.append((df_str['TOP'][idx], DICT_FOSSILS[s.strip()], df_str['BASE'][idx]))  
     
     #list of Contacts
     contact_list = list(zip(df['BASE'].tolist(),
@@ -648,6 +693,7 @@ def sub_plot_struct(df, sub_plots, pos, tope, basee, **kwargs):
             
     #PLOTEO ESTRUCTURAS
     base_aux = 0
+    x0 = 0.05
     for i in range(len(struct_list)):
         x_tope = struct_list[i][0] if struct_list[i][0] > tope else tope
         x_base = struct_list[i][2] if struct_list[i][2] < basee else basee
@@ -664,15 +710,15 @@ def sub_plot_struct(df, sub_plots, pos, tope, basee, **kwargs):
     yticks = np.append([tope, basee],np.arange(0,basee,step)) # start,stop,step
     for i in range(len(contact_list)):    
         yticks = np.append(contact_list[i][0],yticks)
-        if contact_list[i][1]=='S':
+        if contact_list[i][1]=='S' or contact_list[i][1]=='s':
             axS.hlines(y=contact_list[i][0], xmin=0, xmax=1, colors='black', ls='-', lw=2, zorder = 5, alpha = 0.5)
 
-        if contact_list[i][1]=='E':
+        if contact_list[i][1]=='E' or contact_list[i][1]=='e':
             x = np.arange(0,1,0.001)   # start,stop,step
             y = np.sin(50*x)
             axS.plot(x,contact_list[i][0]+escala*y, color="black", zorder =10, lw=2, alpha = 0.5)
 
-        if contact_list[i][1]=='G':
+        if contact_list[i][1]=='G' or contact_list[i][1]=='g':
             axS.hlines(y=contact_list[i][0], xmin=0, xmax=1, colors='black', ls='--', lw=2, zorder = 5, alpha = 0.5)
         
         if pd.isna(contact_list[i][1]):
@@ -734,15 +780,15 @@ def sub_plot_des(df, sub_plots, tope, basee):
     yticks = np.append([tope, basee],np.arange(0,basee,step)) # start,stop,step
     for i in range(len(contact_list)):    
         yticks = np.append(contact_list[i][0],yticks)
-        if contact_list[i][1]=='S':
+        if contact_list[i][1]=='S' or contact_list[i][1]=='s':
             axD.hlines(y=contact_list[i][0], xmin=0, xmax=1, colors='black', ls='-', lw=2, zorder = 5, alpha = 0.5)
 
-        if contact_list[i][1]=='E':
+        if contact_list[i][1]=='E' or contact_list[i][1]=='e':
             x = np.arange(0,1,0.001)   # start,stop,step
             y = np.sin(50*x)
             axD.plot(x,contact_list[i][0]+escala*y, color="black", zorder =10, lw=2, alpha = 0.5)
 
-        if contact_list[i][1]=='G':
+        if contact_list[i][1]=='G' or contact_list[i][1]=='g':
             axD.hlines(y=contact_list[i][0], xmin=0, xmax=1, colors='black', ls='--', lw=2, zorder = 5, alpha = 0.5)
         
         if pd.isna(contact_list[i][1]):
@@ -843,10 +889,12 @@ def show_structs(**kwargs):
         df = pandas dataframe from read_litho or read_sedlog
         plot {'structures', 'fossils', 'both'} default 'both'
         keys = True: show lithology keys
+        tit = Title. Default none
         save_fig = name of file to be saved
     '''
     
     plot = 'both'
+    tit = ''
     from_df, keys = False, False
     save = False
     
@@ -861,6 +909,8 @@ def show_structs(**kwargs):
             name = value
         if (key == 'keys'):
             keys = True 
+        if (key == 'tit'):
+            tit = value 
 
    
     bbox_props = dict(boxstyle="Round, pad=0.8", fc="w", ec="0.5", alpha=0.0)
@@ -872,7 +922,7 @@ def show_structs(**kwargs):
         if from_df:
             for e in df['STRUCTURES'][df['STRUCTURES'].isnull() ==False].to_list():
                 for k in e.split(','):
-                    list_struct.add(k)
+                    list_struct.add(k.strip())
         else:
             list_struct = list(DICT_STRUCT.keys())
             
@@ -880,7 +930,7 @@ def show_structs(**kwargs):
         if from_df:
             for e in df['FOSSILS'][df['FOSSILS'].isnull() ==False].to_list():
                 for k in e.split(','):
-                    list_fossils.add(k)    
+                    list_fossils.add(k.strip())    
         else:
             list_fossils = list(DICT_FOSSILS.keys())
             
@@ -900,7 +950,7 @@ def show_structs(**kwargs):
   
     if plot == 'structures' or plot == 'both':
         ax.text(xmax/2, y-1, 'STRUCTURES',  weight='bold',
-            ha="center", va="top",linespacing = 1.2, size=25, multialignment='left',
+            ha="center", va="top",linespacing = 1.2, size=22, multialignment='left',
             bbox=bbox_props, zorder=1,rotation=0,wrap=True)             
         #ax.hlines(y=y-4, xmin=xmax/2.55, xmax=xmax/1.65, colors='black', ls='-.', lw=1, zorder = 5)
         
@@ -922,7 +972,7 @@ def show_structs(**kwargs):
                
     if plot == 'fossils' or plot == 'both':
         ax.text(xmax/2, y-1, 'FOSSILS',   weight='bold',
-            ha="center", va="top",linespacing = 1.2, size=25, multialignment='left',
+            ha="center", va="top",linespacing = 1.2, size=22, multialignment='left',
             bbox=bbox_props, zorder=1,rotation=0,wrap=True)             
         #ax.hlines(y=y-4, xmin=43, xmax=57, colors='black', ls='-.', lw=1, zorder = 5)
 
@@ -937,7 +987,9 @@ def show_structs(**kwargs):
             x = (x + 16) if x < 83 else 3
             y = (y - 12) if x == 3 else y
         
-
+    
+    if tit != '':
+        ax.set_title(tit, ha='center', fontsize=30)
     
     ax.grid(which='major', color='lightgrey', linestyle='-')
     ax.axes.get_xaxis().set_visible(False)
@@ -951,6 +1003,8 @@ def show_structs(**kwargs):
     
     plt.show()
     
+
+
 
 
 

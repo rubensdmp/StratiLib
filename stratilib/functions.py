@@ -937,7 +937,7 @@ def show_structs(**kwargs):
             
     s_rows = -(-len(list_struct)//6) # ceil
     f_rows = -(-len(list_fossils)//6) # ceil
-    maxstruct = max(len(list_struct), len(list_struct))
+    maxstruct = max(len(list_struct), len(list_fossils))
     
     fig = plt.subplots(figsize=(15 if maxstruct > 5 else maxstruct * 2.5,(s_rows*(2+0.2))+ (f_rows*(2+0.2))))
     ax = plt.subplot2grid((1,1), (0,0), rowspan=1, colspan = 1) 
@@ -947,7 +947,7 @@ def show_structs(**kwargs):
     xmax = 100 if maxstruct > 5 else maxstruct * 16.66
     ax.set_xlim(0, xmax)    
     
-  
+    
     if plot == 'structures' or plot == 'both':
         ax.text(xmax/2, y-1, 'STRUCTURES',  weight='bold',
             ha="center", va="top",linespacing = 1.2, size=22, multialignment='left',

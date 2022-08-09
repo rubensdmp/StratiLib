@@ -100,7 +100,7 @@ def to_sedlog_csv(df,name):
         df: Pandas dataframe from read_litho() or read_sedlog()
         name: name of output csv file.
     '''
-
+    
     
     def structs_to_csv(s1, s2):
         structs = ''        
@@ -112,6 +112,9 @@ def to_sedlog_csv(df,name):
                 structs += ',' + DICT_DF_SL_FOSSILS.get(st,'')
         return structs[1:]
 
+    
+    NO_SEDLOG = False
+    
     list_keys = df['LITH1'].unique().tolist() + df['LITH2'][df['LITH2'].isnull()==False].unique().tolist() + df['LITH3'][df['LITH3'].isnull()==False].unique().tolist()
     no_sedlog_lith = []
     for key in list_keys:

@@ -1,11 +1,14 @@
+---
+---
+---
+
 # ⛏️ StratiLib
 
 **`StratiLib` facilitates the loading, processing and ploting stratigraphic columns.**
 
->Open-source stratigraphic modeling in Python.
+> Open-source stratigraphic modeling in Python.
 
-[![license: LGPL v3](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://github.com/rubensdmp/StratiLib/blob/main/LICENCE)
-Developed by [Rubens Merlino](https://www.linkedin.com/in/rubens-merlino-uy/).
+[![license: LGPL v3](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://github.com/rubensdmp/StratiLib/blob/main/LICENCE) Developed by [Rubens Merlino](https://www.linkedin.com/in/rubens-merlino-uy/).
 
 ## 📝 Introduction
 
@@ -17,8 +20,7 @@ StratiLib has all and more lithologys than sedLog 3.1 and also, at least, the sa
 
 StratiLib use Pandas Dataframes to manipulate data.
 
-In further versions, StratiLib will can analyze data statistically and apply machine learning models to them. 
-
+In further versions, StratiLib will can analyze data statistically and apply machine learning models to them.
 
 ## ⚡ Installation
 
@@ -31,7 +33,6 @@ StratiLib depends on the following packages:
 -   `pandas`
 -   `matplotlib`
 -   `numpy`
-
 
 ## 📓 Quick start
 
@@ -65,7 +66,6 @@ sl.show_structs(**kwargs)
 
 In the tutorial notebooks you can find more parameters.
 
-
 ## 📚 Documentation
 
 The StratiLib documentation is a work in progress.
@@ -78,32 +78,32 @@ To report bugs or suggest new features/improvements to the code, please [open an
 
 There are several important ways you can help; here are some examples:
 
-- Submitting bug reports and feature requests: see [Issues](https://github.com/rubensdmp/StratiLib/issues).
-- Fixing typos and generally improving the documentation.
-- Writing tutorials, examples, and how-to documents.
+-   Submitting bug reports and feature requests: see [Issues](https://github.com/rubensdmp/StratiLib/issues).
+-   Fixing typos and generally improving the documentation.
+-   Writing tutorials, examples, and how-to documents.
 
 Please see contact [me](https://www.linkedin.com/in/rubens-merlino-uy/) for more information.
 
 ## 🖼️ Gallery of examples
 
-
 ### Example of some stratigraphic columns
+
 ![Example 1](https://github.com/rubensdmp/StratiLib/blob/main/images/readme/columns.png?raw=true)
 
-
-
 ### Example of lithologies and its patterns that can be used
+
 ``` python
 #Plot lithologies that can be used
 sl.show_litho()
 ```
+
 ![Example 1](https://github.com/rubensdmp/StratiLib/blob/main/images/readme/lithologies.png?raw=true)
 
-
-
 ### Example of Structures and Fossils that can be used
+
 ``` python
 #Plot structures and fossils that can be used
 sl.show_structs()
 ```
+
 ![Example 2](https://github.com/rubensdmp/StratiLib/blob/main/images/readme/StructuresANDFossils.png?raw=true)

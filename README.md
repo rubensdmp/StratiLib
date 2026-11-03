@@ -8,7 +8,7 @@
 
 > Open-source stratigraphic modeling in Python.
 
-[![license: LGPL v3](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://github.com/rubensdmp/StratiLib/blob/main/LICENCE) Developed by [Rubens Merlino](https://www.linkedin.com/in/rubens-merlino-uy/).
+[![license: GPL v3](https://img.shields.io/badge/license-GPL%20v3-blue.svg)](https://github.com/rubensdmp/StratiLib/blob/main/LICENSE) Developed by [Rubens Merlino](https://www.linkedin.com/in/rubens-merlino-uy/).
 
 ## 📝 Introduction
 

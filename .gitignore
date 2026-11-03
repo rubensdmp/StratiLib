@@ -130,3 +130,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# R / RStudio
+.RData
+.Rhistory
+.Rproj.user/
+
+# SO / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
